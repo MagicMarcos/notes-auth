@@ -3,7 +3,7 @@ require('dotenv').config({ path: './config/.env' });
 const url = process.env.url;
 // config/database.js
 module.exports = {
-	url: url,
+	url: `${url}`,
 	dbName: 'notes',
 };
 
