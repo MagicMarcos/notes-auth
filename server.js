@@ -17,6 +17,9 @@ var session = require('express-session');
 
 var configDB = require('./config/database.js');
 
+require('dotenv').config({ path: './config/.env' });
+// url stored in .env
+const url = process.env.url;
 var db;
 
 // configuration ===============================================================
