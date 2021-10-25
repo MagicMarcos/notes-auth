@@ -3,7 +3,7 @@ require('dotenv').config({ path: './config/.env' });
 const url = process.env.url;
 // config/database.js
 module.exports = {
-	url: /*stored in .env */,
+	url: 'mongodb+srv://savageAuth:pIuybFhikT6dREN7@cluster0.qbdrb.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
 	dbName: 'notes',
 };
 
