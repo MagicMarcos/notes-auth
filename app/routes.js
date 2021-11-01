@@ -9,21 +9,21 @@ module.exports = function (app, passport, db) {
 	});
 
 	// PROFILE SECTION =========================
-	app.get(
-		'/profile',
-		/*isLoggedIn,*/ function (req, res) {
-			db.collection('todo')
-				.find()
-				.toArray((err, result) => {
-					if (err) return console.log(err);
-					res.render('profile.ejs', {
-						// with passport, the user is sent as part of the request
-						user: req.user,
-						todos: result,
-					});
+	app.get('/profile', isLoggedIn, function (req, res) {
+		let uId = ObjectId(req.session.passport.user);
+		console.log(uId);
+		db.collection('notes')
+			.find({ userId: uId })
+			.toArray((err, result) => {
+				if (err) return console.log(err);
+				console.log(result);
+				res.render('profile.ejs', {
+					// with passport, the user is sent as part of the request
+					user: req.user,
+					notes: result,
 				});
-		}
-	);
+			});
+	});
 
 	// LOGOUT ================================
 	app.get('/logout', function (req, res) {
@@ -33,55 +33,17 @@ module.exports = function (app, passport, db) {
 
 	// message board routes ===============================================================
 
-	app.post('/todo', (req, res) => {
-		db.collection('todo').insertOne(
+	app.post('/notes', (req, res) => {
+		db.collection('notes').insertOne(
 			{
-				todo: req.body.todo,
+				note: req.body.note,
 				notebody: req.body.notebody,
+				userId: req.user._id,
 			},
 			(err, result) => {
 				if (err) return console.log(err);
 				console.log('saved to database');
 				res.redirect('/profile');
-			}
-		);
-	});
-
-	app.put('/upVote', (req, res) => {
-		console.log(req.body.todo);
-		db.collection('todo').findOneAndUpdate(
-			{ todo: req.body.todo },
-			{
-				$set: {
-					status: 'complete',
-				},
-			},
-			{
-				sort: { _id: -1 },
-			},
-			(err, result) => {
-				if (err) return res.send(err);
-
-				res.send(result);
-			}
-		);
-	});
-
-	app.put('/downVote', (req, res) => {
-		req.body.todo;
-		db.collection('todo').findOneAndUpdate(
-			{ todo: req.body.todo, status: req.body.status },
-			{
-				$set: {
-					status: 'incomplete',
-				},
-			},
-			{
-				sort: { _id: -1 },
-			},
-			(err, result) => {
-				if (err) return res.send(err);
-				res.send(result);
 			}
 		);
 	});
@@ -95,20 +57,6 @@ module.exports = function (app, passport, db) {
 				res.send({ result: 'Message deleted!' });
 			}
 		);
-	});
-
-	app.delete('/deleteAll', (req, res) => {
-		db.collection('todo').deleteMany({}, (err, result) => {
-			if (err) return res.send(500, err);
-			res.send('Message deleted!');
-		});
-	});
-
-	app.delete('/deleteCompleted', (req, res) => {
-		db.collection('todo').deleteMany({ status: 'complete' }, (err, result) => {
-			if (err) return res.send(500, err);
-			res.send('Message deleted!');
-		});
 	});
 
 	// =============================================================================
